@@ -80,7 +80,6 @@ jobs:
         env:
           SDL_VIDEODRIVER: "dummy"
           SDL_AUDIODRIVER: "disk"
-          MACOSX_DEPLOYMENT_TARGET: 10.9
 
           CIBW_BUILD: ${{ matrix.pyver }}-*
 
