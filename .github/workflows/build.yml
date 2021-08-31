@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
-        os: [windows-latest, macos-11.0]
+        os: [windows-latest, macos-10.15]
 
         # seperate into matrix for concurrency. 
         pyver: ['cp27', 'cp35', 'cp36', 'cp37', 'cp38', 'cp39', 'cp310', 'pp27', 'pp36', 'pp37']
@@ -61,10 +61,9 @@ jobs:
           # extra safety
           MACOSX_DEPLOYMENT_TARGET: 10.9
           CMAKE_OSX_DEPLOYMENT_TARGET: 10.9
-          CFLAGS: -arch x86_64 -arcg arm64 -mmacosx-version-min=10.9
 
           # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: pip install wheel requests numpy && brew install --build-from-source sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf libpng zlib freetype portmidi
+          CIBW_BEFORE_BUILD_MACOS: pip install wheel requests numpy && brew install --build-from-source sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf libpng zlib freetype portmidi --force -arch x86_64 -arch arm64 -mmacosx-version-min=10.9
 
           CIBW_BEFORE_BUILD_WINDOWS: pip install wheel requests numpy
 
@@ -94,10 +93,9 @@ jobs:
           # extra safety
           MACOSX_DEPLOYMENT_TARGET: 10.9
           CMAKE_OSX_DEPLOYMENT_TARGET: 10.9
-          CFLAGS: -arch x86_64 -arcg arm64 -mmacosx-version-min=10.9
 
           # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: pip install wheel requests numpy && brew install --build-from-source sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf libpng zlib freetype portmidi
+          CIBW_BEFORE_BUILD_MACOS: pip install wheel requests numpy && brew install --build-from-source sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf freetype portmidi --force -arch x86_64 -arch arm64 -mmacosx-version-min=10.9
 
           CIBW_BEFORE_BUILD_WINDOWS: pip install wheel requests numpy
 
