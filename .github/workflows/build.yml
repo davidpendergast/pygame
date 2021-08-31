@@ -28,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
-        os: [windows-latest, macos-10.15]
+        os: [windows-latest, macos-11.0]
 
         # seperate into matrix for concurrency. 
         pyver: ['cp27', 'cp35', 'cp36', 'cp37', 'cp38', 'cp39', 'cp310', 'pp27', 'pp36', 'pp37']
@@ -46,14 +46,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install MacPorts
-        if: runner.os == 'macOS'
-        run: |
-          wget https://github.com/macports/macports-base/releases/download/v2.7.1/MacPorts-2.7.1-10.15-Catalina.pkg
-          sudo installer -pkg MacPorts-2.7.1-10.15-Catalina.pkg -target /
-          echo "/opt/local/bin" >> $GITHUB_PATH
-          echo "/opt/local/sbin" >> $GITHUB_PATH
-
       # use cibuildwheel v1 to build on older python versions
       - name: Build wheels with CIBuildWheel v1
         if: matrix.pyver == 'cp27' || matrix.pyver == 'cp35' || matrix.pyver == 'pp27' || matrix.pyver == 'pp36'
@@ -61,12 +53,18 @@ jobs:
         env:
           SDL_VIDEODRIVER: "dummy"
           SDL_AUDIODRIVER: "disk"
-          MACOSX_DEPLOYMENT_TARGET: 10.9
 
           CIBW_BUILD: ${{ matrix.pyver }}-*
 
+          # Compiler flags for homebrew installs to generate old mac compatible
+          # builds. Probably too many redundant flags, but this is done for
+          # extra safety
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+          CMAKE_OSX_DEPLOYMENT_TARGET: 10.9
+          CFLAGS: -arch x86_64 -arcg arm64 -mmacosx-version-min=10.9
+
           # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: pip install wheel requests numpy && sudo port install libsdl2 libsdl2_ttf libsdl2_image libsdl2_mixer freetype portmidi +universal
+          CIBW_BEFORE_BUILD_MACOS: pip install wheel requests numpy && brew install --build-from-source sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf libpng zlib freetype portmidi
 
           CIBW_BEFORE_BUILD_WINDOWS: pip install wheel requests numpy
 
@@ -92,8 +90,15 @@ jobs:
           # uncomment when arm builds are working
           # CIBW_ARCHS_MACOS: "x86_64 universal2"
 
+          # Compiler flags for homebrew installs to generate old mac compatible
+          # builds. Probably too many redundant flags, but this is done for
+          # extra safety
+          MACOSX_DEPLOYMENT_TARGET: 10.9
+          CMAKE_OSX_DEPLOYMENT_TARGET: 10.9
+          CFLAGS: -arch x86_64 -arcg arm64 -mmacosx-version-min=10.9
+
           # Install some dependencies
-          CIBW_BEFORE_BUILD_MACOS: pip install wheel requests numpy && sudo port install libsdl2 libsdl2_ttf libsdl2_image libsdl2_mixer freetype portmidi +universal
+          CIBW_BEFORE_BUILD_MACOS: pip install wheel requests numpy && brew install --build-from-source sdl2 sdl2_image sdl2_mixer sdl2_net sdl2_ttf libpng zlib freetype portmidi
 
           CIBW_BEFORE_BUILD_WINDOWS: pip install wheel requests numpy
 
